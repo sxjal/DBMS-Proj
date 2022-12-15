@@ -1,39 +1,25 @@
 <?php
 session_start();
-error_reporting(0);
 include('includes/db_conn.php');
-if($_SESSION['login']!=''){
-$_SESSION['login']='';
-}
 if(isset($_POST['login']))
 {
-  //code for captach verification
-if ($_POST["vercode"] != $_SESSION["vercode"] OR $_SESSION["vercode"]=='')  {
-        echo "<script>alert('Incorrect verification code');</script>" ;
-    } 
-else {
-$email=$_POST['email'];
+$username=$_POST['username'];
 $password=md5($_POST['password']);
-$sql ="SELECT UID,PASSWORD FROM USER WHERE UID=:email and PASSWORD=:password";
+$sql ="SELECT LOGIN_ID,PWD FROM authentication WHERE LOGIN_ID=:username and PWD=:password";
+//$sql ="SELECT  FROM  WHERE = $username and = $password";
+
 $query= $conn -> prepare($sql);
-$query-> bindParam(':email', $email, PDO::PARAM_STR);
+$query-> bindParam(':username', $username, PDO::PARAM_STR);
 $query-> bindParam(':password', $password, PDO::PARAM_STR);
 $query-> execute();
 $results=$query->fetchAll(PDO::FETCH_OBJ);
-
-  if($query->rowCount() > 0)
-  {
-      foreach ($results as $result) {
-        $_SESSION['stdid'] = $result->UID;
-        $_SESSION['login'] = $_POST['email'];
-        
-        echo "<script type='text/javascript'> window.location.href ='dashboard.php'; </script>";
-        }
-  }
-  else{
-      echo "<script>alert('Invalid Details');</script>";
-  }
-    }
+if($query->rowCount() > 0)
+{
+$_SESSION['alogin']=$_POST['username'];
+echo "<script type='text/javascript'> document.location ='dashboard.php'; </script>";
+} else{
+echo "<script>alert('Invalid Details');</script>";
+}
 }
 ?>
 <!DOCTYPE html>
@@ -43,7 +29,7 @@ $results=$query->fetchAll(PDO::FETCH_OBJ);
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
     <meta name="description" content="" />
     <meta name="author" content="" />
-    <title>Online Sports Invetory Management System | </title>
+    <title>Online Library Management System</title>
     <!-- BOOTSTRAP CORE STYLE  -->
     <link href="assets/css/bootstrap.css" rel="stylesheet" />
     <!-- FONT AWESOME STYLE  -->
@@ -62,7 +48,7 @@ $results=$query->fetchAll(PDO::FETCH_OBJ);
 <div class="container">
 <div class="row pad-botm">
 <div class="col-md-12">
-<h4 class="header-line">USER LOGIN FORM</h4>
+<h4 class="header-line">ADMIN LOGIN FORM</h4>
 </div>
 </div>
              
@@ -77,20 +63,14 @@ $results=$query->fetchAll(PDO::FETCH_OBJ);
 <form role="form" method="post">
 
 <div class="form-group">
-<label>Enter User id</label>
-<input class="form-control" type="text" name="email" required autocomplete="off" />
+<label>Enter Username</label>
+<input class="form-control" type="text" name="username" required />
 </div>
 <div class="form-group">
 <label>Password</label>
-<input class="form-control" type="password" name="password" required autocomplete="off"  />
+<input class="form-control" type="password" name="password" required />
 </div>
-
- <div class="form-group">
-<label>Verification code : </label>
-<input type="text" class="form-control1"  name="vercode" maxlength="5" autocomplete="off" required  style="height:25px;" />&nbsp;<img src="captcha.php">
-</div> 
-
- <button type="submit" name="login" class="btn btn-info">LOGIN </button> | <a href="signup.php">Not Register Yet</a>
+ <button type="submit" name="login" class="btn btn-info">LOGIN </button>
 </form>
  </div>
 </div>
@@ -109,6 +89,5 @@ $results=$query->fetchAll(PDO::FETCH_OBJ);
     <script src="assets/js/bootstrap.js"></script>
       <!-- CUSTOM SCRIPTS  -->
     <script src="assets/js/custom.js"></script>
-
 </body>
 </html>
